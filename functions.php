@@ -1,10 +1,20 @@
 <?php
-
-//token that will be used for authentication
-$token = 'INSERT YOUR TOKEN HERE';
+//insert here the token retrieved from instagram
+define("YOUR_TOKEN", 'INSERT HERE YOUR TOKEN');
 
 //superior limit of number of recent images 
-$max_images = 8;
+define("MAX_IMAGES", 10);
+
+//function that send request to the instagram services
+function retrieve_values($url) {
+	$ch = curl_init();
+	curl_setopt($ch, CURLOPT_URL, $url);
+	curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+	curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+	$response = curl_exec($ch);
+	curl_close($ch);
+	return $response;
+}
 
 //function that retrieve the user informations that match the username searched
 //note:if you don't use a name that matchs exactly an username in instagram
@@ -14,16 +24,9 @@ function search_users($username) {
 	
 	$users = array();
 	
-	//set the url of the service
-	$url ='https://api.instagram.com/v1/users/search?q=' . $username . '&access_token='. $GLOBALS['token'];
-	$ch = curl_init();
-	curl_setopt($ch, CURLOPT_URL, $url);
-	curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
-	curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-	
-	//retrieve the values for the username
-	$response = curl_exec($ch);
-	curl_close($ch);
+	//send the request to instagram and retrieve the response
+	$url ='https://api.instagram.com/v1/users/search?q=' . $username . '&access_token='. YOUR_TOKEN;
+	$response = retrieve_values($url);
 	
 	//decode the answer
 	$json = json_decode($response, true);
@@ -40,21 +43,15 @@ function search_users($username) {
 }
 
 //function that retrieve the images related to a numeric userid
-//the number of images is limited to the most recent 8
+//the number of images is limited to the most recent 10
 function search_images($userid) {
 	
 	$images = array();
 	
-	//set the url of the service
-	$url ='https://api.instagram.com/v1/users/'. $userid . '/media/recent/?access_token=' . $GLOBALS['token'];
-	$ch = curl_init();
-	curl_setopt($ch, CURLOPT_URL, $url);
-	curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
-	curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-	
-	//retrieve the value for the username
-	$response = curl_exec($ch);
-	curl_close($ch);
+	//send the request to instagram and retrieve the response
+	$url ='https://api.instagram.com/v1/users/'. $userid . '/media/recent/?access_token=' . YOUR_TOKEN;
+	$response = retrieve_values($url);
+
 	
 	//decode the answer
 	$json = json_decode($response, true);
@@ -67,9 +64,9 @@ function search_images($userid) {
 				));
 	}
 	
-	//if there are more than 8 images extract the first 8 
-	if(count($images) > $GLOBALS['max_images']) {
-		$images = array_slice($images, 0, $GLOBALS['max_images']);
+	//if there are more than 10 images extract the first 10 
+	if(count($images) > MAX_IMAGES) {
+		$images = array_slice($images, 0, MAX_IMAGES);
 	}
 	return $images;
 }

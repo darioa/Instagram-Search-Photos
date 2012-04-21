@@ -6,8 +6,7 @@
 <ul style="list-style-type: none;">
 <?php
 include 'functions.php';
-$q = $_SERVER['QUERY_STRING'];
-parse_str($q, $userid);
+parse_str($_SERVER['QUERY_STRING'], $userid);
 $images = search_images($userid['q']);
 
 //if the user has not loaded images appears only a simple message
